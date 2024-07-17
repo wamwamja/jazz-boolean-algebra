@@ -14,6 +14,9 @@ TEST(TestOr, basic) {
     EXPECT_TRUE((p | true).isEqual(true));
     EXPECT_TRUE(Expr(true).isEqual(p | true));
     EXPECT_TRUE((p | false).isEqual(p));
-    EXPECT_TRUE((p | p).simplified().isEqual(p));
-    EXPECT_TRUE(p.isEqual((p | p).simplified()));
+    EXPECT_TRUE(p.isEqual(p | false));
+    EXPECT_TRUE((p | p).isEqual(p));
+    EXPECT_TRUE(p.isEqual((p | p)));
+    EXPECT_TRUE(p.isEqual((p | p | p)));
+    EXPECT_TRUE((p | p | p).isEqual(p));
 }
