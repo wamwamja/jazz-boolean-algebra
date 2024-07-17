@@ -76,8 +76,15 @@ namespace jazz {
     Expr operator!(const Expr &expr) {
         if (expr.isTrivial())
             return !expr.isTrivial();
-        else
-            return create<Not>(expr);
+        else if (is_exactly_a<Not>(expr)) {
+            auto &n_expr = expr_cast<Not>(expr);
+            if (n_expr.notFlag()) {
+                return n_expr.operand(0);
+            } else {
+                return create<Not>(n_expr.operand(0));
+            }
+        }
+        return create<Not>(expr);
     }
 
     std::ostream &operator<<(std::ostream &os, const Expr &e) {

@@ -45,11 +45,8 @@ TEST(TestNot, symbol) {
 TEST(TestNot, multipleNot) {
     Expr p("p");
     Expr q("q");
-    // !!p = p, but !!p is a Not object, so it is not equal to p
-    // Simplify the Not object, we get symbol p
-    EXPECT_TRUE((!!p).simplified().isEqual(p));
-    // same as above
-    EXPECT_TRUE((p).isEqual((!!p).simplified()));
+    EXPECT_TRUE((!!p).isEqual(p));
+    EXPECT_TRUE((p).isEqual((!!p)));
     EXPECT_TRUE((!!!p).isEqual(!p));
     EXPECT_TRUE((!p).isEqual(!!!p));
 }

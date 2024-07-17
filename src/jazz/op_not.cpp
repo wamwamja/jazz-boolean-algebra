@@ -112,3 +112,6 @@ jazz::Expr jazz::Not::simplified() const {
         }
     }
 }
+bool jazz::Not::notFlag() const {
+    return not_flag;
+}

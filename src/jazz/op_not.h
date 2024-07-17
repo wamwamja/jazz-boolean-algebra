@@ -31,6 +31,8 @@ namespace jazz {
 
         Expr simplified() const override;
 
+        bool notFlag() const;
+
     protected:
         unsigned computeHash() const override;
         void doPrint(const jazz::PrintContext &context, unsigned level) const;
