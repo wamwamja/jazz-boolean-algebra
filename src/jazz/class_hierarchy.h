@@ -18,12 +18,13 @@
 #ifndef BOOLEAN_ALGEBRA_CLASS_HIERARCHY_H
 #define BOOLEAN_ALGEBRA_CLASS_HIERARCHY_H
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace jazz {
     /**

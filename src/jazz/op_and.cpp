@@ -23,6 +23,7 @@
 #include "boolean.h"
 #include "op_not.h"
 #include "op_or.h"
+#include <algorithm>
 
 namespace jazz {
     JAZZ_IMPLEMENT_REGISTERED_CLASS_OPT(And, Basic, print_func<PrintContext>(&And::doPrint));

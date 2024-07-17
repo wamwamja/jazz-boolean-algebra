@@ -23,6 +23,7 @@
 #include "op_or.h"
 #include "boolean.h"
 #include "op_not.h"
+#include <algorithm>
 
 
 namespace jazz {
