@@ -44,8 +44,16 @@ namespace jazz {
     Expr operator&(const Expr &lhs, const Expr &rhs) {
         if (lhs.isEqual(rhs))
             return lhs;
-        else
-            return exAnd(lhs, rhs);
+        else if (lhs.isTrivial()) {
+            if (lhs.trivialValue()) {
+                return rhs;
+            }
+        } else if (rhs.isTrivial()) {
+            if (rhs.trivialValue()) {
+                return lhs;
+            }
+        }
+        return exAnd(lhs, rhs);
     }
     Expr operator|(const Expr &lhs, const Expr &rhs) {
         if (lhs.isEqual(rhs))
