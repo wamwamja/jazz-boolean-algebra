@@ -249,3 +249,15 @@ void jazz::Or::addOperand(const jazz::Expr &expr) {
     operands.push_back(expr);
     clearFlags(STATUS_FLAG_SIMPLIFIED);
 }
+jazz::Expr jazz::Or::simplified() const {
+    if (isTrivial()){
+        return trivialValue();
+    }else{
+        // not trivial so that boolean is false.
+        if (operands.size() == 1){
+            return operands[0];
+        }else{
+            return *this;
+        }
+    }
+}

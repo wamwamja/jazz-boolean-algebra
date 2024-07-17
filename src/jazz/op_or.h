@@ -44,6 +44,8 @@ namespace jazz {
         bool isTrivial() const override;
         bool trivialValue() const override;
 
+        Expr simplified() const override;
+
     protected:
         unsigned computeHash() const override;
         void opOr(const Expr &rhs);

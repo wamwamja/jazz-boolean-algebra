@@ -42,20 +42,42 @@ namespace jazz {
     }
 
     Expr operator&(const Expr &lhs, const Expr &rhs) {
-        return exAnd(lhs, rhs);
+        if (lhs.isEqual(rhs))
+            return lhs;
+        else
+            return exAnd(lhs, rhs);
     }
     Expr operator|(const Expr &lhs, const Expr &rhs) {
+        if (lhs.isEqual(rhs))
+            return lhs;
+        else if (lhs.isTrivial()) {
+            if (lhs.trivialValue()) {
+                return true;
+            } else {
+                return rhs;
+            }
+        } else if (rhs.isTrivial()) {
+            if (rhs.trivialValue()) {
+                return true;
+            } else {
+                return lhs;
+            }
+        }
+
         return exOr(lhs, rhs);
     }
 
     Expr operator*(const Expr &lhs, const Expr &rhs) {
-        return exAnd(lhs, rhs);
+        return lhs & rhs;
     }
     Expr operator+(const Expr &lhs, const Expr &rhs) {
-        return exOr(lhs, rhs);
+        return lhs | rhs;
     }
     Expr operator!(const Expr &expr) {
-        return create<Not>(expr);
+        if (expr.isTrivial())
+            return !expr.isTrivial();
+        else
+            return create<Not>(expr);
     }
 
     std::ostream &operator<<(std::ostream &os, const Expr &e) {
