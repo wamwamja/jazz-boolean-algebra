@@ -51,7 +51,7 @@ TEST(TestNot, multipleNot) {
     EXPECT_TRUE((!p).isEqual(!!!p));
 }
 
-TEST(TEstNot, identicalOr) {
+TEST(TestNot, identicalOr) {
     Expr p("p");
     EXPECT_TRUE((p | !p).isEqual(true));
     EXPECT_TRUE((!p | p).isEqual(true));

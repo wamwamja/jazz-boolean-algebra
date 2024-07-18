@@ -23,6 +23,7 @@
 #include "op_or.h"
 #include "boolean.h"
 #include "op_not.h"
+#include "utils.h"
 #include <algorithm>
 
 
@@ -30,7 +31,20 @@ namespace jazz {
     JAZZ_IMPLEMENT_REGISTERED_CLASS_OPT(Or, Basic, print_func<PrintContext>(&Or::doPrint));
     JAZZ_IMPLEMENT_COMPARE_SAME_TYPE(Or, other) {
         JAZZ_ASSERT(is_a<Or>(other));
-        return ParentType::compareSameType(other);
+        auto this_op = operands;
+        auto other_op = dynamic_cast<const Or &>(other).operands;
+        if (this_op.size() != other_op.size())
+            return comparePointer(this, &other);
+
+        std::sort(this_op.begin(), this_op.end(), ExprLess());
+        std::sort(other_op.begin(), other_op.end(), ExprLess());
+        auto n = this_op.size();
+        for (int i = 0; i < n; ++i) {
+            if (!this_op[i].isEqual(other_op[i]))
+                return comparePointer(this, &other);
+        }
+
+        return 0;
     }
 }// namespace jazz
 
@@ -168,7 +182,7 @@ jazz::Expr jazz::Or::subs(const jazz::ExprMap &m, unsigned int options) const {
         for (const auto &new_operand : new_operands) {
             expr->opOr(new_operand);
         }
-        return *expr;
+        return expr->simplified();
     } else {
         return *this;
     }
@@ -250,13 +264,13 @@ void jazz::Or::addOperand(const jazz::Expr &expr) {
     clearFlags(STATUS_FLAG_SIMPLIFIED);
 }
 jazz::Expr jazz::Or::simplified() const {
-    if (isTrivial()){
+    if (isTrivial()) {
         return trivialValue();
-    }else{
+    } else {
         // not trivial so that boolean is false.
-        if (operands.size() == 1){
+        if (operands.size() == 1) {
             return operands[0];
-        }else{
+        } else {
             return *this;
         }
     }
