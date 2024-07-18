@@ -1,16 +1,19 @@
-General Information
-===================
-This is a C++ library for computing boolean algebra.
-The design takes the idea of [GiNaC](https://www.ginac.de/),
+![CMake Multi-Platform Build](https://github.com/wamwamja/jazz-boolean-algebra/actions/workflows/cmake-multi-platform.yml/badge.svg)
+
+Introduction
+=========
+It is a C++ library for symbolic boolean algebra calculations.
+The design takes the idea of [GiNac](https://www.ginac.de),
 which is a C++ library for symbolic mathematical calculations.
 
-The reason I wrote this library is that I need it to help me solve problems on the website
-[The Nand Game](https://nandgame.com). This website explains how to build a computer from
-scratch using only NAND gates.
+I wrote this library to help me solve problems on the website [The Nand Game](https://nandgame.com).
+This website explains building a computer from scratch using only NAND gates.
 
-How to Build
-============
-It follows the standard CMake build process. `gtest` is required if you want to build the tests.
+The library obeys the GNU General Public License v3.0.
+
+How to build
+=========
+It follows the standard CMake build process. Optionally, `gtest` is required to build the tests.
 
 Usage
 =====
@@ -23,11 +26,7 @@ Currently, the library only supports the following objects and operations:
 - Relation, represented by the relevant operators `==`, `!=`, `>`, `>=`, `<`, `<=`
 - Substitution, represented by the `Expr::subs()` method
 
-All the internal structures are wrapped in the `Expr` class,
-so that users do not need to care the internal representation of the boolean expression.
-With only `Expr` and the overloaded operators, users can easily build complex boolean expressions.
-
-The following is an example code that demonstrates the usage of the library:
+A user only needs to care about the `Expr` class among all the internal structures because `Expr` wraps all of them. One can build complex boolean expressions with just `Expr` and the overloaded operators. The following example code demonstrates the usage of the library:
 
 ```cpp
 #include "jazz/boolean-algebra.h"
@@ -88,14 +87,12 @@ expr12 : expr10.subs(u == true)                   => q | r | p
 
 Issues
 ======
-Be careful when using this library, because:
+Be careful when using the library because:
 
-- The library is under development, so there are many features missing.
-- It is not fully tested yet.
+- The library is under development, so many features are missing.
+- Unit tests only cover a small portion of the code.
 
-License
-=======
-This library is licensed under the GNU General Public License v3.0.
+Issues and pull requests are welcome.
 
-Have Fun!
+Have fun!
 =========
