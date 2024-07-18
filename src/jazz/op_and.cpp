@@ -23,13 +23,27 @@
 #include "boolean.h"
 #include "op_not.h"
 #include "op_or.h"
+#include "utils.h"
 #include <algorithm>
 
 namespace jazz {
     JAZZ_IMPLEMENT_REGISTERED_CLASS_OPT(And, Basic, print_func<PrintContext>(&And::doPrint));
     JAZZ_IMPLEMENT_COMPARE_SAME_TYPE(And, other) {
         JAZZ_ASSERT(is_a<And>(other));
-        return ParentType::compareSameType(other);
+        auto this_op = operands;
+        auto other_op = dynamic_cast<const And &>(other).operands;
+        if (this_op.size() != other_op.size())
+            return comparePointer(this, &other);
+
+        std::sort(this_op.begin(), this_op.end(), ExprLess());
+        std::sort(other_op.begin(), other_op.end(), ExprLess());
+        auto n = this_op.size();
+        for (int i = 0; i < n; ++i) {
+            if (!this_op[i].isEqual(other_op[i]))
+                return comparePointer(this, &other);
+        }
+
+        return 0;
     }
 }// namespace jazz
 
