@@ -27,8 +27,6 @@
 
 namespace jazz {
     class Expr;
-    class Relational;
-    class Not;
 
     Expr operator&(const Expr &lhs, const Expr &rhs);
     Expr operator|(const Expr &lhs, const Expr &rhs);
@@ -44,7 +42,7 @@ namespace jazz {
     Expr operator>(const Expr &lhs, const Expr &rhs);
     Expr operator>=(const Expr &lhs, const Expr &rhs);
 
-    std::ostream & operator<<(std::ostream & os, const Expr & e);
+    std::ostream &operator<<(std::ostream &os, const Expr &e);
 }// namespace jazz
 
 #endif//BOOLEAN_ALGEBRA_OPERATORS_H

@@ -21,7 +21,11 @@
 
 #include "expr.h"
 #include "boolean.h"
+#include "operations.h"
 #include "symbol.h"
+
+#include <string>
+#include <unordered_set>
 
 jazz::Expr::Expr(bool v) : ptr(v ? Ptr(Boolean::True()) : Ptr(Boolean::False())) {
 }
@@ -79,3 +83,93 @@ bool jazz::ExprEqual::operator()(const jazz::Expr &e1, const jazz::Expr &e2) con
 unsigned jazz::ExprHash::operator()(const jazz::Expr &e) const {
     return e.hashValue();
 }
+
+namespace jazz {
+
+    std::vector<Expr> getExprVars(const Expr &expr) {
+        std::vector<Expr> vars;
+        std::unordered_set<Expr, ExprHash, ExprEqual> var_set;
+
+        if (!expr.isTrivial()) {
+            auto num = expr.numOperands();
+            for (size_t i = 0; i < num; i++) {
+                const auto &op = expr.operand(i);
+                if (op.isType(TYPE_FLAG_SYMBOL)) {
+                    if (var_set.insert(op).second) {
+                        vars.push_back(op);
+                    }
+                } else {
+                    auto vars2 = op.getVars(0);
+                    for (auto &v : vars2) {
+                        if (var_set.insert(v).second) {
+                            vars.push_back(v);
+                        }
+                    }
+                }
+            }
+        }
+
+        return vars;
+    }
+
+    std::vector<Expr> Expr::getVars(int sort_flag) const {
+        auto vars = getExprVars(*this);
+        if (sort_flag == SYMBOL_LIST_SORT_NAME_ASC) {
+            auto cmp = [](const Expr &a, const Expr &b) {
+                JAZZ_ASSERT(a.isType(TYPE_FLAG_SYMBOL) && b.isType(TYPE_FLAG_SYMBOL));
+                return expr_cast<Symbol>(a).getName() < expr_cast<Symbol>(b).getName();
+            };
+            std::sort(vars.begin(), vars.end(), cmp);
+        }
+        return vars;
+    }
+
+    void Expr::printTruthTable() const {
+        auto vars = getVars();
+        auto num_vars = vars.size();
+
+        std::vector<std::size_t> name_len(num_vars);
+        std::size_t name_len_total = 0;
+        for (size_t i = 0; i < num_vars; i++) {
+            name_len[i] = expr_cast<Symbol>(vars[i]).getName().size() + 2;
+            name_len_total += name_len[i];
+        }
+
+        // print header
+        char output[] = "v";
+        std::cout << " ** Truth table for " << output << " = " << *this << " **" << std::endl;
+        std::cout << std::string(name_len_total + num_vars + std::strlen(output) + 2, '-') << std::endl;
+        for (size_t i = 0; i < num_vars; i++) {
+            printf(" %s |", expr_cast<Symbol>(vars[i]).getName().c_str());
+        }
+        std::cout << " " << output << " " << std::endl;
+        std::cout << std::string(name_len_total + num_vars + std::strlen(output) + 2, '-') << std::endl;
+
+        // print truth table
+        if (num_vars < sizeof(unsigned long) * 8) {
+            unsigned long v = 0;
+            unsigned long max = (1 << num_vars);
+
+            while (v < max) {
+                Expr eval_expr = *this;
+                for (size_t i = 0; i < num_vars; i++) {
+                    bool bit = v & (1 << (num_vars - i - 1));
+                    eval_expr = eval_expr.subs(vars[i] == bit);
+                    printf(" %s |", bit ? "1" : "0");
+                }
+
+                if (!eval_expr.isTrivial()) {
+                    std::cerr << "internal error: truth table evaluation failed" << std::endl;
+                    return;
+                }
+
+                printf(" %s\n", eval_expr.trivialValue() ? "1" : "0");
+                v++;
+            }
+            std::cout << std::string(name_len_total + num_vars + std::strlen(output) + 2, '-') << std::endl;
+        } else {
+            std::cerr << "truth table is too large to print" << std::endl;
+            return;
+        }
+    }
+}// namespace jazz

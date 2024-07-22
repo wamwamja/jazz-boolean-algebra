@@ -28,6 +28,11 @@
 
 namespace jazz {
 
+    enum SYMBOL_LIST_SORT_METHOD {
+        SYMBOL_LIST_SORT_NONE = 0,
+        SYMBOL_LIST_SORT_NAME_ASC,
+    };
+
     class Expr;
 
     /**
@@ -53,18 +58,18 @@ namespace jazz {
 
     class Expr {
         template<class T>
-        friend inline const T &expr_cast(const Expr &);
+        friend inline const T &expr_cast(const Expr &e);
         template<class T>
-        friend inline bool is_a(const Expr &);
+        friend inline bool is_a(const Expr &e);
         template<class T>
-        friend inline bool is_exactly_a(const Expr &);
-        friend inline bool are_ex_trivially_equal(const Expr &, const Expr &);
+        friend inline bool is_exactly_a(const Expr &e);
+        friend inline bool are_ex_trivially_equal(const Expr &e1, const Expr &e2);
 
     public:
         Expr(const Basic &other) : ptr(makeFromBasic(other)) {}
         // construct from bool. The implicit conversion is intended.
         Expr(bool v = false);
-        explicit Expr(const char* name);
+        explicit Expr(const char *name);
 
     public:
         void swap(Expr &other) noexcept {
@@ -81,6 +86,7 @@ namespace jazz {
         void print(const PrintContext &context, unsigned level = 0) const;
         void debugPrint() const;
         void debugPrintTree() const;
+        void printTruthTable() const;
 
         int compare(const Expr &other) const;
         unsigned hashValue() const { return ptr->hashValue(); }
@@ -125,6 +131,9 @@ namespace jazz {
             return ptr->simplified();
         }
 
+
+        std::vector<Expr> getVars(int sort_flag = SYMBOL_LIST_SORT_NAME_ASC) const;
+
     private:
         static Ptr<Basic> makeFromBasic(const Basic &b) {
             if (b.flags & STATUS_FLAG_DYNAMIC_ALLOC) {
@@ -136,26 +145,25 @@ namespace jazz {
 
     private:
         mutable Ptr<Basic> ptr;
-    };// namespace jazz
+    };// class Expr
 
+    template<class T>
+    bool is_a(const Expr &e) {
+        return jazz::is_a<T>(*e.ptr);
+    }
 
-    template<typename T>
-    inline const T &expr_cast(const Expr &e) {
+    template<class T>
+    bool is_exactly_a(const Expr &e) {
+        return jazz::is_exactly_a<T>(*e.ptr);
+    }
+
+    template<class T>
+    const T &expr_cast(const Expr &e) {
         JAZZ_ASSERT(is_a<T>(e));
         return static_cast<const T &>(*e.ptr);
     }
 
-    template<typename T>
-    inline bool is_a(const Expr &e) {
-        return jazz::is_a<T>(*e.ptr);
-    }
-
-    template<typename T>
-    inline bool is_exactly_a(const Expr &e) {
-        return jazz::is_exactly_a<T>(*e.ptr);
-    }
-
-    inline bool are_ex_trivially_equal(const Expr &e1, const Expr &e2) {
+    bool are_ex_trivially_equal(const Expr &e1, const Expr &e2) {
         return e1.ptr == e2.ptr;
     }
 

@@ -32,5 +32,10 @@ int main() {
     print(expr11, expr10.subs(p == false));
     print(expr12, expr10.subs(u == true));
 
+
+    // print truth table
+    (p + q).printTruthTable();
+    (p * q).printTruthTable();
+
     return 0;
 }
