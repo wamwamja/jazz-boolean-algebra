@@ -26,7 +26,9 @@ Currently, the library only supports the following objects and operations:
 - Relation, represented by the relevant operators `==`, `!=`, `>`, `>=`, `<`, `<=`
 - Substitution, represented by the `Expr::subs()` method
 
-A user only needs to care about the `Expr` class among all the internal structures because `Expr` wraps all of them. One can build complex boolean expressions with just `Expr` and the overloaded operators. The following example code demonstrates the usage of the library:
+A user only needs to care about the `Expr` class among all the internal structures because `Expr` wraps all of them. One
+can build complex boolean expressions with just `Expr` and the overloaded operators. The following example code
+demonstrates the usage of the library:
 
 ```cpp
 #include "jazz/boolean-algebra.h"
@@ -96,3 +98,5 @@ Issues and pull requests are welcome.
 
 Have fun!
 =========
+
+* [Xor](nandgames/Xor.md) - Implement an XOR gate using NAND gates.
