@@ -28,18 +28,18 @@ using namespace jazz;
 
 
 TEST(TestNot, constant) {
-        EXPECT_TRUE(Expr(true).isEqual(true));
-        EXPECT_TRUE(Expr(false).isEqual(false));
-        EXPECT_FALSE(Expr(true).isEqual(false));
-        EXPECT_FALSE(Expr(false).isEqual(true));
+    EXPECT_TRUE(Expr(true).isEqual(true));
+    EXPECT_TRUE(Expr(false).isEqual(false));
+    EXPECT_FALSE(Expr(true).isEqual(false));
+    EXPECT_FALSE(Expr(false).isEqual(true));
 }
 
 TEST(TestNot, symbol) {
-        Expr p("p");
-        EXPECT_TRUE((p).isEqual(p));
-        EXPECT_TRUE((!p).isEqual(!p));
-        EXPECT_FALSE((p).isEqual(!p));
-        EXPECT_FALSE((!p).isEqual(p));
+    Expr p("p");
+    EXPECT_TRUE((p).isEqual(p));
+    EXPECT_TRUE((!p).isEqual(!p));
+    EXPECT_FALSE((p).isEqual(!p));
+    EXPECT_FALSE((!p).isEqual(p));
 }
 
 TEST(TestNot, multipleNot) {
@@ -66,7 +66,9 @@ TEST(TestNot, identicalAnd) {
 TEST(TestNot, substitution) {
     Expr p("p");
     Expr q("q");
+    EXPECT_TRUE((!p).subs(p == q).isEqual(!q));
     EXPECT_TRUE((!q).subs(q == !p).simplified().isEqual(p));
     EXPECT_TRUE((q).subs(q == !p).isEqual(!p));
     EXPECT_TRUE((q).subs(q == !p).subs(p == !q).simplified().isEqual(q));
+    EXPECT_TRUE(!(p & q).subs(p == !p).subs(q == !q).isEqual(p | q));
 }

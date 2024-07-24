@@ -49,7 +49,12 @@ const jazz::Expr &jazz::Not::operand(int i) const {
     return expr;
 }
 jazz::Expr jazz::Not::subs(const jazz::ExprMap &m, unsigned int options) const {
-    return create<Not>(expr.subs(m, options));
+    if (not_flag) {
+        return create<Not>(expr.subs(m, options));
+    }
+    else{
+        return expr.subs(m, options);
+    }
 }
 bool jazz::Not::isTrivial() const {
     return expr.isTrivial();
