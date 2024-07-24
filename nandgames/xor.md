@@ -19,11 +19,13 @@ $$ XOR(A, B) = \overline{AB} \cdot (A+B).$$
 Reformulating the expression in terms of NAND gates, we have
 
 $$
-\overline{AB} \cdot (A+B) \\
-= \overline{AB} A + \overline{AB}B \\
-= \overline{\overline{\overline{AB} A + \overline{AB}B}} \\
-= \overline{\overline{\overline{AB} A} \cdot \overline{\overline{AB} B}} \\
-= NAND(NAND(NAND(A,B), A), NAND(NAND(A,B), B))
+\begin{align*}
+\overline{AB} \cdot (A+B) 
+&= \overline{AB} A + \overline{AB}B \\
+&= \overline{\overline{\overline{AB} A + \overline{AB}B}} \\
+&= \overline{\overline{\overline{AB} A} \cdot \overline{\overline{AB} B}} \\
+&= \mathrm{NAND}(\mathrm{NAND}(\mathrm{NAND}(A,B), A), \mathrm{NAND}(\mathrm{NAND}(A,B), B))
+\end{align*}
 $$
 
 ### Verify the expression
