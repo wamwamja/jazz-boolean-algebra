@@ -124,9 +124,9 @@ namespace jazz {
         return vars;
     }
 
-    void Expr::printTruthTable() const {
-        auto vars = getVars();
+    void Expr::printTruthTable(const std::vector<Expr> &vars) const {
         auto num_vars = vars.size();
+        bool complete_eval = (num_vars == getVars().size());
 
         std::vector<std::size_t> name_len(num_vars);
         std::size_t name_len_total = 0;
@@ -159,11 +159,14 @@ namespace jazz {
                 }
 
                 if (!eval_expr.isTrivial()) {
-                    std::cerr << "internal error: truth table evaluation failed" << std::endl;
-                    return;
+                    if (complete_eval) {
+                        std::cerr << "internal error: truth table evaluation failed" << std::endl;
+                        return;
+                    }
+                    std::cout << " " << eval_expr.simplified() << std::endl;
+                } else {
+                    printf(" %s\n", eval_expr.trivialValue() ? "1" : "0");
                 }
-
-                printf(" %s\n", eval_expr.trivialValue() ? "1" : "0");
                 v++;
             }
             std::cout << std::string(name_len_total + num_vars + std::strlen(output) + 2, '-') << std::endl;
@@ -171,5 +174,9 @@ namespace jazz {
             std::cerr << "truth table is too large to print" << std::endl;
             return;
         }
+    }
+
+    void Expr::printTruthTable() const {
+        printTruthTable(getVars());
     }
 }// namespace jazz

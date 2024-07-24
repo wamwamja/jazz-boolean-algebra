@@ -87,6 +87,7 @@ namespace jazz {
         void debugPrint() const;
         void debugPrintTree() const;
         void printTruthTable() const;
+        void printTruthTable(const std::vector<Expr> &vars) const;
 
         int compare(const Expr &other) const;
         unsigned hashValue() const { return ptr->hashValue(); }
