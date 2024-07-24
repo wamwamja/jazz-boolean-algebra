@@ -101,3 +101,4 @@ Have fun!
 
 * [Xor](nandgames/Xor.md) - Implement an XOR gate using NAND gates.
 * [Compare uint16](nandgames/compare_uint_16.md) - Compare two 16-bit unsigned integers.
+* [Multiplier](nandgames/mul_16u.md) - A 16-bit positive multiplier.
