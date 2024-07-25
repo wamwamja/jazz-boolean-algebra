@@ -22,5 +22,6 @@
 #include "basic.h"
 #include "expr.h"
 #include "operations.h"
+#include "canonical.h"
 
 #endif//JAZZ_BOOLEAN_ALGEBRA_BOOLEAN_ALGEBRA_H

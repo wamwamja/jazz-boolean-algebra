@@ -64,6 +64,7 @@ namespace jazz {
         TYPE_FLAG_RELATIONAL_LESS_OR_EQUAL,
         TYPE_FLAG_RELATIONAL_GREATER,
         TYPE_FLAG_RELATIONAL_GREATER_OR_EQUAL,
+        TYPE_FLAG_BOOLEAN_FUNCTION,
     };
 }// namespace jazz
 

@@ -86,6 +86,7 @@ namespace jazz {
         void print(const PrintContext &context, unsigned level = 0) const;
         void debugPrint() const;
         void debugPrintTree() const;
+
         void printTruthTable() const;
         void printTruthTable(const std::vector<Expr> &vars) const;
 
@@ -131,7 +132,6 @@ namespace jazz {
         Expr simplified() const {
             return ptr->simplified();
         }
-
 
         std::vector<Expr> getVars(int sort_flag = SYMBOL_LIST_SORT_NAME_ASC) const;
 
