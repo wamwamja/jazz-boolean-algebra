@@ -27,89 +27,88 @@
 #include "operations.h"
 
 namespace jazz {
-    namespace canonical {
 
-        BooleanFunction &makeFunction(const char *name, const std::vector<Expr> &vars, const Expr &expr) {
-            return create<BooleanFunction>(expr, vars, name);
-        }
+    BooleanFunction &makeFunction(const char *name, const std::vector<Expr> &vars, const Expr &expr) {
+        return create<BooleanFunction>(expr, vars, name);
+    }
 
-        Expr Constant_0(const char *x, const char *y) {
-            return makeFunction("f", {Expr(x), Expr(y)}, false);
-        }
-        Expr False(const char *x, const char *y) {
-            return Constant_0(x, y);
-        }
-        Expr And(const char *x, const char *y) {
-            return Expr(x) & Expr(y);
-        }
-        Expr X_And_Not_Y(const char *x, const char *y) {
-            return Expr(x) & !Expr(y);
-        }
-        Expr NonImplication(const char *x, const char *y) {
-            return X_And_Not_Y(x, y);
-        }
-        Expr LeftProjection(const char *x, const char *y) {
-            std::vector<Expr> vars = {Expr(x), Expr(y)};
-            return makeFunction("f", vars, vars[0]);
-        }
-        Expr Not_X_And_Y(const char *x, const char *y) {
-            return !Expr(x) & Expr(y);
-        }
-        Expr ConverseNonImplication(const char *x, const char *y) {
-            return Not_X_And_Y(x, y);
-        }
-        Expr RightProjection(const char *x, const char *y) {
-            std::vector<Expr> vars = {Expr(x), Expr(y)};
-            return makeFunction("f", vars, vars[1]);
-        }
-        Expr Xor(const char *x, const char *y) {
-            Expr ex(x), ey(y);
-            return (ex & !ey) | (!ex & ey);
-        }
-        Expr Or(const char *x, const char *y) {
-            return Expr(x) | Expr(y);
-        }
-        Expr Nor(const char *x, const char *y) {
-            return !(Expr(x) | Expr(y));
-        }
-        Expr Equivalence(const char *x, const char *y) {
-            Expr ex(x), ey(y);
-            return (ex & ey) | (!ex & !ey);
-        }
-        Expr Not_Y(const char *x, const char *y) {
-            std::vector<Expr> vars = {Expr(x), Expr(y)};
-            return makeFunction("f", vars, !vars[1]);
-        }
-        Expr RightComplementation(const char *x, const char *y) {
-            return Not_Y(x, y);
-        }
-        Expr X_Or_Not_Y(const char *x, const char *y) {
-            return Expr(x) | !Expr(y);
-        }
-        Expr ConverseImplication(const char *x, const char *y) {
-            return X_Or_Not_Y(x, y);
-        }
-        Expr Not_X(const char *x, const char *y) {
-            std::vector<Expr> vars = {Expr(x), Expr(y)};
-            return makeFunction("f", vars, !vars[0]);
-        }
-        Expr LeftComplementation(const char *x, const char *y) {
-            return Not_X(x, y);
-        }
-        Expr Not_X_Or_Y(const char *x, const char *y) {
-            return !Expr(x) | Expr(y);
-        }
-        Expr Implication(const char *x, const char *y) {
-            return Not_X_Or_Y(x, y);
-        }
-        Expr Nand(const char *x, const char *y) {
-            return !(Expr(x) & Expr(y));
-        }
-        Expr Constant_1(const char *x, const char *y) {
-            return makeFunction("f", {Expr(x), Expr(y)}, true);
-        }
-        Expr True(const char *x, const char *y) {
-            return Constant_1(x, y);
-        }
-    }// namespace canonical
+
+    Expr Canonical::Constant_0(const char *x, const char *y) {
+        return makeFunction("f", {Expr(x), Expr(y)}, false);
+    }
+    Expr Canonical::False(const char *x, const char *y) {
+        return Constant_0(x, y);
+    }
+    Expr Canonical::And(const char *x, const char *y) {
+        return Expr(x) & Expr(y);
+    }
+    Expr Canonical::X_And_Not_Y(const char *x, const char *y) {
+        return Expr(x) & !Expr(y);
+    }
+    Expr Canonical::NonImplication(const char *x, const char *y) {
+        return X_And_Not_Y(x, y);
+    }
+    Expr Canonical::LeftProjection(const char *x, const char *y) {
+        std::vector<Expr> vars = {Expr(x), Expr(y)};
+        return makeFunction("f", vars, vars[0]);
+    }
+    Expr Canonical::Not_X_And_Y(const char *x, const char *y) {
+        return !Expr(x) & Expr(y);
+    }
+    Expr Canonical::ConverseNonImplication(const char *x, const char *y) {
+        return Not_X_And_Y(x, y);
+    }
+    Expr Canonical::RightProjection(const char *x, const char *y) {
+        std::vector<Expr> vars = {Expr(x), Expr(y)};
+        return makeFunction("f", vars, vars[1]);
+    }
+    Expr Canonical::Xor(const char *x, const char *y) {
+        Expr ex(x), ey(y);
+        return (ex & !ey) | (!ex & ey);
+    }
+    Expr Canonical::Or(const char *x, const char *y) {
+        return Expr(x) | Expr(y);
+    }
+    Expr Canonical::Nor(const char *x, const char *y) {
+        return !(Expr(x) | Expr(y));
+    }
+    Expr Canonical::Equivalence(const char *x, const char *y) {
+        Expr ex(x), ey(y);
+        return (ex & ey) | (!ex & !ey);
+    }
+    Expr Canonical::Not_Y(const char *x, const char *y) {
+        std::vector<Expr> vars = {Expr(x), Expr(y)};
+        return makeFunction("f", vars, !vars[1]);
+    }
+    Expr Canonical::RightComplementation(const char *x, const char *y) {
+        return Not_Y(x, y);
+    }
+    Expr Canonical::X_Or_Not_Y(const char *x, const char *y) {
+        return Expr(x) | !Expr(y);
+    }
+    Expr Canonical::ConverseImplication(const char *x, const char *y) {
+        return X_Or_Not_Y(x, y);
+    }
+    Expr Canonical::Not_X(const char *x, const char *y) {
+        std::vector<Expr> vars = {Expr(x), Expr(y)};
+        return makeFunction("f", vars, !vars[0]);
+    }
+    Expr Canonical::LeftComplementation(const char *x, const char *y) {
+        return Not_X(x, y);
+    }
+    Expr Canonical::Not_X_Or_Y(const char *x, const char *y) {
+        return !Expr(x) | Expr(y);
+    }
+    Expr Canonical::Implication(const char *x, const char *y) {
+        return Not_X_Or_Y(x, y);
+    }
+    Expr Canonical::Nand(const char *x, const char *y) {
+        return !(Expr(x) & Expr(y));
+    }
+    Expr Canonical::Constant_1(const char *x, const char *y) {
+        return makeFunction("f", {Expr(x), Expr(y)}, true);
+    }
+    Expr Canonical::True(const char *x, const char *y) {
+        return Constant_1(x, y);
+    }
 }// namespace jazz

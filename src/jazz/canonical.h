@@ -24,62 +24,63 @@
 #ifndef JAZZ_BOOLEAN_ALGEBRA_CANONICAL_H
 #define JAZZ_BOOLEAN_ALGEBRA_CANONICAL_H
 
-namespace jazz{
+namespace jazz {
     class Expr;
 
-    namespace canonical{
-
-        Expr PlaceholderTrue();
-
+    /**
+     * Canonical Boolean functions.
+     */
+    class Canonical {
+    public:
         /// Boolean function 0000, f(x,y) = 0.
-        Expr Constant_0(const char *x = "x", const char* y = "y");
+        static Expr Constant_0(const char *x = "x", const char *y = "y");
         /// Boolean function 0000, alias of Constant_0(), f(x,y) = 0.
-        Expr False(const char *x = "x", const char* y = "y");
+        static Expr False(const char *x = "x", const char *y = "y");
         /// Boolean function 0001, f(x,y) = And(x,y).
-        Expr And(const char *x = "x", const char* y = "y");
+        static Expr And(const char *x = "x", const char *y = "y");
         /// Boolean function 0010, f(x,y) = And(x,Not(y)).
-        Expr X_And_Not_Y(const char *x = "x", const char* y = "y");
+        static Expr X_And_Not_Y(const char *x = "x", const char *y = "y");
         /// Boolean function 0010, alias of X_And_Not_Y(), f(x,y) = And(x,Not(y)).
-        Expr NonImplication(const char *x = "x", const char* y = "y");
+        static Expr NonImplication(const char *x = "x", const char *y = "y");
         /// Boolean function 0011, f(x,y) = x.
-        Expr LeftProjection(const char *x = "x", const char* y = "y");
+        static Expr LeftProjection(const char *x = "x", const char *y = "y");
         /// Boolean function 0100, f(x,y) = And(Not(x),y).
-        Expr Not_X_And_Y(const char *x = "x", const char* y = "y");
+        static Expr Not_X_And_Y(const char *x = "x", const char *y = "y");
         /// Boolean function 0100, alias of Not_X_And_Y(), f(x,y) = And(Not(x),y).
-        Expr ConverseNonImplication(const char *x = "x", const char* y = "y");
+        static Expr ConverseNonImplication(const char *x = "x", const char *y = "y");
         /// Boolean function 0101, f(x,y) = y.
-        Expr RightProjection(const char *x = "x", const char* y = "y");
+        static Expr RightProjection(const char *x = "x", const char *y = "y");
         /// Boolean function 0110, f(x,y) = Xor(x,y) = Or(And(x,Not(y)), And(Not(x),y)).
-        Expr Xor(const char *x = "x", const char* y = "y");
+        static Expr Xor(const char *x = "x", const char *y = "y");
         /// Boolean function 0111, f(x,y) = Or(x,y).
-        Expr Or(const char *x = "x", const char* y = "y");
+        static Expr Or(const char *x = "x", const char *y = "y");
         /// Boolean function 1000, f(x,y) = Not(Or(x,y)).
-        Expr Nor(const char *x = "x", const char* y = "y");
+        static Expr Nor(const char *x = "x", const char *y = "y");
         /// Boolean function 1001, f(x,y) = Or(And(x,y),And(Not(x),Not(y))).
-        Expr Equivalence(const char *x = "x", const char* y = "y");
+        static Expr Equivalence(const char *x = "x", const char *y = "y");
         /// Boolean function 1010, f(x,y) = Not(y).
-        Expr Not_Y(const char *x = "x", const char* y = "y");
+        static Expr Not_Y(const char *x = "x", const char *y = "y");
         /// Boolean function 1010, alias of Not_Y(), f(x,y) = Not(y).
-        Expr RightComplementation(const char *x = "x", const char* y = "y");
+        static Expr RightComplementation(const char *x = "x", const char *y = "y");
         /// Boolean function 1011, f(x,y) = Or(x,Not(y)).
-        Expr X_Or_Not_Y(const char *x = "x", const char* y = "y");
+        static Expr X_Or_Not_Y(const char *x = "x", const char *y = "y");
         /// Boolean function 1011, alias of X_Or_Not_Y(), f(x,y) = Or(x,Not(y)).
-        Expr ConverseImplication(const char *x = "x", const char* y = "y");
+        static Expr ConverseImplication(const char *x = "x", const char *y = "y");
         /// Boolean function 1100, f(x,y) = Not(x).
-        Expr Not_X(const char *x = "x", const char* y = "y");
+        static Expr Not_X(const char *x = "x", const char *y = "y");
         /// Boolean function 1100, alias of Not_X(), f(x,y) = Not(x).
-        Expr LeftComplementation(const char *x = "x", const char* y = "y");
+        static Expr LeftComplementation(const char *x = "x", const char *y = "y");
         /// Boolean function 1101, f(x,y) = Or(Not(x),y).
-        Expr Not_X_Or_Y(const char *x = "x", const char* y = "y");
+        static Expr Not_X_Or_Y(const char *x = "x", const char *y = "y");
         /// Boolean function 1101, alias of Not_X_Or_Y(), f(x,y) = Or(Not(x),y).
-        Expr Implication(const char *x = "x", const char* y = "y");
+        static Expr Implication(const char *x = "x", const char *y = "y");
         /// Boolean function 1110, f(x,y) = Not(And(x,y)).
-        Expr Nand(const char *x = "x", const char* y = "y");
+        static Expr Nand(const char *x = "x", const char *y = "y");
         /// Boolean function 1111, f(x,y) = 1.
-        Expr Constant_1(const char *x = "x", const char* y = "y");
+        static Expr Constant_1(const char *x = "x", const char *y = "y");
         /// Boolean function 1111, alias of Constant_1(), f(x,y) = 1.
-        Expr True(const char *x = "x", const char* y = "y");
-    }
-}
+        static Expr True(const char *x = "x", const char *y = "y");
+    };
+}// namespace jazz
 
 #endif//JAZZ_BOOLEAN_ALGEBRA_CANONICAL_H
