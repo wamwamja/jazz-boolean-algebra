@@ -90,6 +90,9 @@ namespace jazz {
         void printTruthTable() const;
         void printTruthTable(const std::vector<Expr> &vars) const;
 
+        std::vector<Expr> getTruthTable() const;
+        std::vector<Expr> getTruthTable(const std::vector<Expr> &vars) const;
+
         int compare(const Expr &other) const;
         unsigned hashValue() const { return ptr->hashValue(); }
         void share(const Expr &other) const;

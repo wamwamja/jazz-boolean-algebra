@@ -136,3 +136,28 @@ void jazz::BooleanFunction::printTruthTable() const {
         return;
     }
 }
+
+std::vector<jazz::Expr> jazz::BooleanFunction::getTruthTable() const {
+    std::vector<Expr> truth_table;
+    auto num_vars = variables.size();
+
+    // get truth table
+    if (num_vars < sizeof(unsigned long) * 8) {
+        unsigned long v = 0;
+        unsigned long max = (1 << num_vars);
+
+        while (v < max) {
+            Expr eval_expr = duplicate()->expr;
+            for (size_t i = 0; i < num_vars; i++) {
+                bool bit = v & (1 << (num_vars - i - 1));
+                eval_expr = eval_expr.subs(variables[i] == bit);
+            }
+            truth_table.push_back(eval_expr.simplified());
+            v++;
+        }
+        return truth_table;
+    } else {
+        std::cerr << "truth table is too large to print" << std::endl;
+        return {};
+    }
+}

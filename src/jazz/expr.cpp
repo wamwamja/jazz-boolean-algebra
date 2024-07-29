@@ -138,4 +138,18 @@ namespace jazz {
     void Expr::printTruthTable() const {
         printTruthTable(getVars());
     }
+
+    std::vector<Expr> Expr::getTruthTable(const std::vector<Expr> &vars) const {
+        if(ptr->isType(TYPE_FLAG_BOOLEAN_FUNCTION)){
+            auto bf = expr_cast<BooleanFunction>(*ptr);
+            return bf.getTruthTable();
+        }else{
+            BooleanFunction bf(*this, vars);
+            return bf.getTruthTable();
+        }
+    }
+
+    std::vector<Expr> Expr::getTruthTable() const {
+        return getTruthTable(getVars());
+    }
 }// namespace jazz

@@ -50,6 +50,24 @@ namespace jazz {
 
         void printTruthTable() const;
 
+        /**
+         * Get the truth table of the function.
+         *
+         * For most cases, the truth table is a vector of determined boolean values.
+         * But here we use expressions to represent the truth table, which can is more flexible.
+         * For example,  f(x,y;z) = (x+y)z, the truth table is:
+         * @verbatim
+         * dec | x y | f(x,y,z)
+         * -------------------
+         *   0 | 0 0 | 0
+         *   1 | 0 1 | z
+         *   2 | 1 0 | z
+         *   3 | 1 1 | z
+         * @endverbatim
+         * @return A vector of expressions representing the truth table.
+         */
+        std::vector<Expr> getTruthTable() const;
+
     protected:
         unsigned computeHash() const override;
         void doPrint(const jazz::PrintContext &context, unsigned level) const;
