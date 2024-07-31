@@ -30,7 +30,7 @@ using namespace jazz;
     TEST(TestGates, NAME) {                                \
         bool bs[] = {b0, b1, b2, b3};                      \
         do {                                               \
-            jazz::Gate::NAME gate;                         \
+            jazz::simulation::NAME gate;                   \
             unsigned int num_input = gate.numInput();      \
             unsigned int num_row = 1 << num_input;         \
             jazz::InOut *in_a = gate.in("a");              \

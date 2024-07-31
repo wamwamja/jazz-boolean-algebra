@@ -37,8 +37,7 @@
 #endif
 
 namespace jazz {
-    class Gate {
-    public:
+    namespace simulation {
         class Nand : public Component {
         public:
             Nand() : Component() {
@@ -166,8 +165,7 @@ namespace jazz {
 
             OVERRIDE_COMPUTE(Or)
         };
-    };
-
+    }// namespace simulation
 }// namespace jazz
 
 

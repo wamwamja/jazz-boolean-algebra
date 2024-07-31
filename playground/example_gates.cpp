@@ -25,7 +25,7 @@
 
 #define TEST_GATE(class_gate)                                           \
     do {                                                                \
-        jazz::Gate::class_gate gate;                                    \
+        jazz::simulation::class_gate gate;                              \
         unsigned int num_input = gate.numInput();                       \
         unsigned int num_row = 1 << num_input;                          \
         jazz::InOut *in_a = gate.in("a");                               \
