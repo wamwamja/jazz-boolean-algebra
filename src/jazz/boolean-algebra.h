@@ -19,9 +19,9 @@
 #ifndef JAZZ_BOOLEAN_ALGEBRA_BOOLEAN_ALGEBRA_H
 #define JAZZ_BOOLEAN_ALGEBRA_BOOLEAN_ALGEBRA_H
 
-#include "basic.h"
-#include "expr.h"
-#include "operations.h"
-#include "canonical.h"
+#include "jazz/algebra/basic.h"
+#include "jazz/algebra/canonical.h"
+#include "jazz/algebra/expr.h"
+#include "jazz/algebra/operations.h"
 
 #endif//JAZZ_BOOLEAN_ALGEBRA_BOOLEAN_ALGEBRA_H

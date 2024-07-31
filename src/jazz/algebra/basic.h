@@ -24,11 +24,11 @@
 #ifndef BOOLEAN_ALGEBRA_BASIC_H
 #define BOOLEAN_ALGEBRA_BASIC_H
 
-#include "config.h"
-#include "flags.h"
-#include "print.h"
-#include "ptr.h"
-#include "registration.h"
+#include "jazz/algebra/flags.h"
+#include "jazz/algebra/print.h"
+#include "jazz/algebra/ptr.h"
+#include "jazz/algebra/registration.h"
+#include "jazz/config.h"
 
 #include <unordered_map>
 
