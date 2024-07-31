@@ -13,6 +13,5 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 
 add_subdirectory(tests)
 
-link_libraries(${libname})
-add_executable(example example.cpp)
+add_subdirectory(playground)
 

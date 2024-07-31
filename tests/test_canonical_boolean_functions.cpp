@@ -24,7 +24,6 @@
 #include "jazz/boolean-algebra.h"
 #include <gtest/gtest.h>
 
-using namespace std;
 using namespace jazz;
 
 #define TEST_CANONICAL_BOOLEAN_FUNCTIONS(b0, b1, b2, b3, NAME) \
