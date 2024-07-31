@@ -26,16 +26,6 @@
 
 #include "jazz/simulation/component.h"
 
-#ifdef JAZZ_DEBUG
-#define OVERRIDE_COMPUTE(classname)               \
-    void compute() override {                     \
-        printf("%s: %s\n", #classname, __func__); \
-        Component::compute();                     \
-    }
-#else
-#define OVERRIDE_COMPUTE(classname)
-#endif
-
 namespace jazz {
     namespace simulation {
         class Nand : public Component {

@@ -33,8 +33,8 @@ using namespace jazz;
             jazz::simulation::NAME gate;                   \
             unsigned int num_input = gate.numInput();      \
             unsigned int num_row = 1 << num_input;         \
-            jazz::InOut *in_a = gate.in("a");              \
-            jazz::InOut *in_b = gate.in("b");              \
+            jazz::simulation::InOut *in_a = gate.in("a");  \
+            jazz::simulation::InOut *in_b = gate.in("b");  \
             for (int i = 0; i < num_row; i++) {            \
                 auto a = (i >> 1) & 0x01;                  \
                 auto b = i & 0x01;                         \
