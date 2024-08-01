@@ -79,6 +79,34 @@ namespace jazz {
             OVERRIDE_FOR_DEBUG(HalfAdder)
         };
 
+        class FullAdder : public Component {
+        public:
+            FullAdder() : Component(){
+                InOut *a = addIn("a", 1);
+                InOut *b = addIn("b", 1);
+                InOut *c = addIn("c", 1);
+                InOut *sum = addOut("sum", 1);
+                InOut *carry = addOut("carry", 1);
+                auto half_adder0 = addComponent(new HalfAdder());
+                auto half_adder1 = addComponent(new HalfAdder());
+                auto or_gate = addComponent(new Or());
+                half_adder0->connect(half_adder0->in("a"), this, a);
+                half_adder0->connect(half_adder0->in("b"), this, b);
+                half_adder1->connect(half_adder1->in("a"), half_adder0, half_adder0->out("sum"));
+                half_adder1->connect(half_adder1->in("b"), this, c);
+
+                or_gate->connect(or_gate->in("a"), half_adder0, half_adder0->out("carry"));
+                or_gate->connect(or_gate->in("b"), half_adder1, half_adder1->out("carry"));
+                connect(carry, or_gate, or_gate->out("out"));
+                connect(sum, half_adder1, half_adder1->out("sum"));
+            }
+
+            ~FullAdder() override = default;
+            const char *name() const override {
+                return "FullAdder";
+            }
+        };
+
     }// namespace simulation
 }// namespace jazz
 

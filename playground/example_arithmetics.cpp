@@ -63,5 +63,11 @@ int main() {
         int aaaa = 1;
     }
 
+    // full adder
+    {
+        FullAdder full_adder;
+        full_adder.saveAsDot("/Users/meitu/Temp/trash/full_adder.dot");
+    }
+
     return 0;
 }
