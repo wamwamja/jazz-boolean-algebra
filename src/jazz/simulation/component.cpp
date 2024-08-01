@@ -262,6 +262,7 @@ bool jazz::simulation::Component::saveAsDot(const char *filename) const {
         port_serial[out] = node_serial;
         fprintf(fp, "n_%d [label=\"%s\"; shape=circle]\n", node_serial++, out->name().c_str());
     }
+
     // subcomponents
     for (auto &component : m_sub_components) {
         component_serial[component] = node_serial;
@@ -299,21 +300,28 @@ bool jazz::simulation::Component::saveAsDot(const char *filename) const {
         for (auto &in : sub->m_ins) {
             auto source = sub->inputSource(in, false);
             if (source.component != nullptr) {
-                fprintf(fp, "n_%d:%s -> n_%d:%s\n",
-                        source.component == this ? port_serial[source.port] : component_serial[source.component],
-                        source.port->name().c_str(),
-                        component_serial[sub],
-                        in->name().c_str());
+                if (source.component == this) {
+                    // The source is an input/out port of this component.
+                    fprintf(fp, "n_%d -> n_%d:%s\n",
+                            port_serial[source.port],
+                            component_serial[sub],
+                            in->name().c_str());
+                } else {
+                    fprintf(fp, "n_%d:%s -> n_%d:%s\n",
+                            component_serial[source.component],
+                            source.port->name().c_str(),
+                            component_serial[sub],
+                            in->name().c_str());
+                }
             }
         }
     }
 
     for (auto &[out, source] : m_output_map) {
-        fprintf(fp, "n_%d:%s -> n_%d:%s\n",
+        fprintf(fp, "n_%d:%s -> n_%d\n",
                 component_serial[source.component],
                 source.port->name().c_str(),
-                port_serial[out],
-                out->name().c_str());
+                port_serial[out]);
     }
 
     fprintf(fp, "}\n");
@@ -435,7 +443,7 @@ void jazz::simulation::Component::clearDeadConnections() {
     for (auto &dest : m_input_dest) {
         auto &receivers = dest.second;
         receivers.erase(std::remove_if(receivers.begin(), receivers.end(), [](ComponentAndPort &receiver) {
-                          return receiver.component == nullptr;
+                            return receiver.component == nullptr;
                         }),
                         receivers.end());
     }
