@@ -253,14 +253,33 @@ bool jazz::simulation::Component::saveAsDot(const char *filename) const {
     std::unordered_map<Component *, unsigned int> component_serial;
 
     // input ports
-    for (auto &in : m_ins) {
-        port_serial[in] = node_serial;
-        fprintf(fp, "n_%d [label=\"%s\"; shape=circle]\n", node_serial++, in->name().c_str());
+    {
+        fprintf(fp, "n_%d [shape=plain\n", node_serial++);
+        fprintf(fp, R"(label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">)");
+        fprintf(fp, "<tr><td><b>Input</b></td></tr>\n");
+        fprintf(fp, "<tr><td>\n");
+        fprintf(fp, "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">\n");
+        for (auto &in : m_ins) {
+            fprintf(fp, R"(<tr><td port="%s" align="center">%s</td></tr>)", in->name().c_str(), in->name().c_str());
+        }
+        fprintf(fp, "</table>\n");
+        fprintf(fp, "</td></tr>\n");
+        fprintf(fp, "</table>>]\n");
     }
+
     // output ports
-    for (auto &out : m_outs) {
-        port_serial[out] = node_serial;
-        fprintf(fp, "n_%d [label=\"%s\"; shape=circle]\n", node_serial++, out->name().c_str());
+    {
+        fprintf(fp, "n_%d [shape=plain\n", node_serial++);
+        fprintf(fp, R"(label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="1">)");
+        fprintf(fp, "<tr><td><b>Output</b></td></tr>\n");
+        fprintf(fp, "<tr><td>\n");
+        fprintf(fp, "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">\n");
+        for (auto &out : m_outs) {
+            fprintf(fp, R"(<tr><td port="%s" align="center">%s</td></tr>)", out->name().c_str(), out->name().c_str());
+        }
+        fprintf(fp, "</table>\n");
+        fprintf(fp, "</td></tr>\n");
+        fprintf(fp, "</table>>]\n");
     }
 
     // subcomponents
@@ -301,9 +320,9 @@ bool jazz::simulation::Component::saveAsDot(const char *filename) const {
             auto source = sub->inputSource(in, false);
             if (source.component != nullptr) {
                 if (source.component == this) {
-                    // The source is an input/out port of this component.
-                    fprintf(fp, "n_%d -> n_%d:%s\n",
-                            port_serial[source.port],
+                    // The source is an input port of this component.
+                    fprintf(fp, "n_0:%s -> n_%d:%s\n",
+                            source.port->name().c_str(),
                             component_serial[sub],
                             in->name().c_str());
                 } else {
@@ -318,10 +337,10 @@ bool jazz::simulation::Component::saveAsDot(const char *filename) const {
     }
 
     for (auto &[out, source] : m_output_map) {
-        fprintf(fp, "n_%d:%s -> n_%d\n",
+        fprintf(fp, "n_%d:%s -> n_1:%s\n",
                 component_serial[source.component],
                 source.port->name().c_str(),
-                port_serial[out]);
+                out->name().c_str());
     }
 
     fprintf(fp, "}\n");
