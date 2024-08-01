@@ -288,44 +288,9 @@ namespace jazz {
                 std::vector<Component *> parts;
             };
 
-            void unpackAll(int level = 1) {
-                while (level > 0) {
-                    std::vector<Replacement> replacements;
-                    for (auto &subcomponent : m_sub_components) {
-                        replacements.emplace_back();
-                        subcomponent->replaceWithParts(replacements.back());
-                    }
-
-                    for (auto &replacement : replacements) {
-
-                        if (replacement.component == nullptr) {
-                            continue;
-                        }
-
-                        // erase this component from the parent's subcomponents
-                        for (auto it = m_sub_components.begin(); it != m_sub_components.end(); it++) {
-                            if (*it == replacement.component) {
-                                m_sub_components.erase(it);
-                                break;
-                            }
-                        }
-
-                        // delete the subcomponent
-                        replacement.component->m_sub_components.clear();
-                        delete replacement.component;
-
-                        for (auto &component : replacement.parts) {
-                            component->m_parent = this;
-                            m_sub_components.push_back(component);
-                        }
-                    }
-
-                    level--;
-                }
-            }
+            void unpack(int level = 1);
 
             bool saveAsDot(const char *filename) const;
-
 
         protected:
             InOut *addIn(const char *name, int width) {
@@ -356,27 +321,7 @@ namespace jazz {
                 return c;
             }
 
-            JAZZ_DEBUG_VIRTUAL void makeOutOfDate() {
-                m_is_computed = false;
-
-                // subcomponents
-                for (auto &dest : m_input_dest) {
-                    for (auto &component_and_port : dest.second) {
-                        if (component_and_port.component != nullptr) {
-                            component_and_port.component->makeOutOfDate();
-                        }
-                    }
-                }
-
-                // other components connected to the output of this component
-                for (auto &dest : m_output_dest) {
-                    for (auto &component_and_port : dest.second) {
-                        if (component_and_port.component != m_parent && component_and_port.component != nullptr) {
-                            component_and_port.component->makeOutOfDate();
-                        }
-                    }
-                }
-            }
+            JAZZ_DEBUG_VIRTUAL void makeOutOfDate();
 
             const std::vector<InOut *> &allInput() {
                 return m_ins;
@@ -388,36 +333,7 @@ namespace jazz {
 
             ComponentAndPort inputSource(InOut *in, bool recursive = true);
 
-            bool replaceWithParts(Replacement &replacement) {
-                if (m_parent == nullptr || m_sub_components.empty()) {
-                    return false;
-                }
-
-                // reconnection.,
-                // For example: A -> B  => A -> B1, A -> B2
-                for (auto &pair : m_input_dest) {
-                    auto source = inputSource(pair.first);
-                    // make a copy because connect() may change the value of pair.second
-                    auto receivers = pair.second;
-                    for (auto &receiver : receivers) {
-                        receiver.component->connect(receiver.port, source);
-                        JAZZ_ASSERT(receiver.component->isConnected(receiver.port, source.port));
-                    }
-                }
-
-                // For example: A -> B  => A1 -> B, A2 -> B
-                for (auto &pair : m_output_dest) {
-                    auto source = m_output_map[pair.first];
-                    for (auto &receiver : pair.second) {
-                        receiver.component->connect(receiver.port, source);
-                    }
-                }
-
-                // move the subcomponents to the parent
-                replacement.parts = m_sub_components;
-                replacement.component = this;
-                return true;
-            }
+            bool replaceWithParts(Replacement &replacement);
 
         private:
             /**
@@ -437,30 +353,7 @@ namespace jazz {
                 }
             }
 
-            void disconnectAll() {
-                // Disconnect all the inputs
-                for (auto &in : m_ins) {
-                    disconnect(in);
-                }
-
-                for (auto &[in, dest] : m_input_dest) {
-                    for (auto &receiver : dest) {
-                        receiver.component->disconnect(receiver.port);
-                    }
-                }
-
-                // Disconnect all the outputs
-                for (auto &out : m_outs) {
-                    disconnect(out);
-                }
-
-                for (auto &[out, dest] : m_output_dest) {
-                    for (auto &receiver : dest) {
-                        receiver.component->disconnect(receiver.port);
-                    }
-                }
-            }
-
+            void disconnectAll();
             void disconnectOutToIn(InOut *out, InOut *in);
             void disconnectInToIn(InOut *in_from, InOut *in_to);
             void disconnectOutToOut(InOut *out_from, InOut *out_to);
@@ -473,6 +366,8 @@ namespace jazz {
                 auto found = m_input_src.find(in);
                 return found != m_input_src.end() && found->second.port == out;
             }
+
+            void clearDeadConnections();
 
         protected:
             std::string m_label;

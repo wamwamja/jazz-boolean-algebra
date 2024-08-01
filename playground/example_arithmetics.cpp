@@ -47,7 +47,7 @@ int main() {
         printf("Num of nand gates = %d\n", half_adder.countNandGate());
         half_adder.saveAsDot("/Users/meitu/Temp/trash/half_adder.dot");
 
-        half_adder.unpackAll(2);
+        half_adder.unpack(2);
         half_adder.saveAsDot("/Users/meitu/Temp/trash/half_adder_unpack.dot");
         printf(" a b | sum carry \n");
         printf("-----|-----------\n");
