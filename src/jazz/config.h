@@ -22,14 +22,21 @@
 #ifndef BOOLEAN_ALGEBRA_CONFIG_H
 #define BOOLEAN_ALGEBRA_CONFIG_H
 
+//#define JAZZ_DEBUG
 
 #if !defined(JAZZ_ASSERT)
-#if defined(DO_JAZZ_ASSERT)
+#if defined(JAZZ_DEBUG)
 #include <cassert>
 #define JAZZ_ASSERT(cond) assert(cond)
 #else
 #define JAZZ_ASSERT(cond)
 #endif
+#endif
+
+#ifdef JAZZ_DEBUG
+#define JAZZ_DEBUG_VIRTUAL virtual
+#else
+#define JAZZ_DEBUG_VIRTUAL
 #endif
 
 #if !defined(DO_JAZZ_STATIC_ASSERT)
@@ -39,6 +46,7 @@
 #define JAZZ_STATIC_ASSERT(cond)
 #endif
 #endif
+
 
 #if !defined(JAZZ_API)
 #if defined(_WIN32_) || defined(WIN32) || defined(_WIN64_) || defined(WIN64)

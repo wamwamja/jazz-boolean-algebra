@@ -21,8 +21,6 @@
  * @date 2024/7/31
  */
 
-//#define JAZZ_DEBUG
-
 #include "jazz/simulation/arithmetics.h"
 
 using namespace jazz::simulation;
@@ -32,12 +30,12 @@ int main() {
     // half adder
     {
         HalfAdder half_adder;
-        printf(" a b | sum carry \n");
-        printf("-----|-----------\n");
         auto a = half_adder.get("a");
         auto b = half_adder.get("b");
         auto sum = half_adder.get("sum");
         auto carry = half_adder.get("carry");
+        printf(" a b | sum carry \n");
+        printf("-----|-----------\n");
         for (int i = 0; i < 4; i++) {
             auto va = (i >> 1) & 0x01;
             auto vb = i & 0x01;
@@ -47,6 +45,22 @@ int main() {
             printf(" %d %d | %3d %5d\n", va, vb, sum->bit(0), carry->bit(0));
         }
         printf("Num of nand gates = %d\n", half_adder.countNandGate());
+        half_adder.saveAsDot("/Users/meitu/Temp/trash/half_adder.dot");
+
+        half_adder.unpackAll(2);
+        half_adder.saveAsDot("/Users/meitu/Temp/trash/half_adder_unpack.dot");
+        printf(" a b | sum carry \n");
+        printf("-----|-----------\n");
+        for (int i = 0; i < 4; i++) {
+            auto va = (i >> 1) & 0x01;
+            auto vb = i & 0x01;
+            half_adder.setInputValue(a, va);
+            half_adder.setInputValue(b, vb);
+            half_adder.compute();
+            printf(" %d %d | %3d %5d\n", va, vb, sum->bit(0), carry->bit(0));
+        }
+
+        int aaaa = 1;
     }
 
     return 0;

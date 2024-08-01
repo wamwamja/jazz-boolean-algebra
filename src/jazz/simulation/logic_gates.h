@@ -42,7 +42,7 @@ namespace jazz {
                 return "Nand";
             }
 
-            OVERRIDE_COMPUTE(Nand)
+            OVERRIDE_FOR_DEBUG(Nand)
         };
 
         class Invert : public Component {
@@ -54,7 +54,8 @@ namespace jazz {
 
                 nand->connect(nand->in("a"), this, a);
                 nand->connect(nand->in("b"), this, a);
-                setOutput(out, nand, nand->out("out"));
+
+                connect(out, nand, nand->out("out"));
             };
 
             ~Invert() override = default;
@@ -63,7 +64,7 @@ namespace jazz {
                 return "Invert";
             }
 
-            OVERRIDE_COMPUTE(Invert)
+            OVERRIDE_FOR_DEBUG(Invert)
         };
 
         class And : public Component {
@@ -79,8 +80,7 @@ namespace jazz {
                 nand->connect(nand->in("a"), this, a);
                 nand->connect(nand->in("b"), this, b);
                 invert->connect(invert->in("a"), nand, nand->out("out"));
-
-                setOutput(out, invert, invert->out("out"));
+                connect(out, invert, invert->out("out"));
             };
 
             ~And() override = default;
@@ -89,7 +89,7 @@ namespace jazz {
                 return "And";
             }
 
-            OVERRIDE_COMPUTE(And)
+            OVERRIDE_FOR_DEBUG(And)
         };
 
         class Or : public Component {
@@ -107,8 +107,7 @@ namespace jazz {
                 invert_b->connect(invert_b->in("a"), this, b);
                 nand->connect(nand->in("a"), invert_a, invert_a->out("out"));
                 nand->connect(nand->in("b"), invert_b, invert_b->out("out"));
-
-                setOutput(out, nand, nand->out("out"));
+                connect(out, nand, nand->out("out"));
             };
 
             ~Or() override = default;
@@ -117,7 +116,7 @@ namespace jazz {
                 return "Or";
             }
 
-            OVERRIDE_COMPUTE(Or)
+            OVERRIDE_FOR_DEBUG(Or)
         };
 
         class Xor : public Component {
@@ -144,7 +143,7 @@ namespace jazz {
                 nand_3->connect(nand_3->in("a"), nand_1, nand_1->out("out"));
                 nand_3->connect(nand_3->in("b"), nand_2, nand_2->out("out"));
 
-                setOutput(out, nand_3, nand_3->out("out"));
+                connect(out, nand_3, nand_3->out("out"));
             };
 
             ~Xor() override = default;
@@ -153,7 +152,7 @@ namespace jazz {
                 return "Xor";
             }
 
-            OVERRIDE_COMPUTE(Or)
+            OVERRIDE_FOR_DEBUG(Or)
         };
     }// namespace simulation
 }// namespace jazz

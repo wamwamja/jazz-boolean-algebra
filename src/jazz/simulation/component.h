@@ -36,8 +36,18 @@
         printf("%s: %s\n", #classname, __func__); \
         Component::compute();                     \
     }
+
+#define OVERRIDE_MAKE_OUT_OF_DATE(classname)      \
+    void makeOutOfDate() override {               \
+        printf("%s: %s\n", #classname, __func__); \
+        Component::makeOutOfDate();               \
+    }
+
+#define OVERRIDE_FOR_DEBUG(classname) \
+    OVERRIDE_COMPUTE(classname)       \
+    OVERRIDE_MAKE_OUT_OF_DATE(classname)
 #else
-#define OVERRIDE_COMPUTE(classname)
+#define OVERRIDE_FOR_DEBUG(classname)
 #endif
 
 namespace jazz {
@@ -49,14 +59,17 @@ namespace jazz {
         class InOut {
         public:
             enum {
+                MAX_BIT_WIDTH = sizeof(IntegerType) * 8,
+            };
+
+            enum TYPE {
                 INPUT = 0,
                 OUTPUT = 1,
-                MAX_BIT_WIDTH = sizeof(IntegerType) * 8,
             };
 
         public:
             InOut() = default;
-            InOut(std::string name, int width, int type) : m_name(std::move(name)), m_width(width), m_type(type) {}
+            InOut(std::string name, int width, TYPE type) : m_name(std::move(name)), m_width(width), m_type(type) {}
             ~InOut() = default;
 
             void setName(const std::string &name) {
@@ -126,7 +139,7 @@ namespace jazz {
                 return bit(i);
             }
 
-            int type() const {
+            TYPE type() const {
                 return m_type;
             }
 
@@ -135,13 +148,13 @@ namespace jazz {
             int m_width = 1;
             /// The value of the in/output, stored in little-endian order.
             bool m_value[MAX_BIT_WIDTH] = {false};
-            int m_type = 0;
+            TYPE m_type = INPUT;
         };
 
         /**
-     * @brief The base class of all components.
-     * A component is a logic gate or a combination of logic gates.
-     */
+         * @brief The base class of all components.
+         * A component is a logic gate or a combination of logic gates.
+         */
         class Component {
         public:
             struct ComponentAndPort {
@@ -149,22 +162,11 @@ namespace jazz {
                 InOut *port;
             };
 
-        public:
+        protected:
             Component() = default;
 
-            virtual ~Component() {
-                for (auto &component : m_sub_components) {
-                    delete component;
-                }
-
-                for (auto &in_out : m_ins) {
-                    delete in_out;
-                }
-
-                for (auto &in_out : m_outs) {
-                    delete in_out;
-                }
-            }
+        public:
+            virtual ~Component();
 
             unsigned int numInput() const {
                 return m_ins.size();
@@ -175,34 +177,23 @@ namespace jazz {
             }
 
             /**
-         * @brief Get the name of the component.
-         *
-         * @note The name of a component is unique
-         * @return
-         */
+             * @brief Get the name of the component.
+             *
+             * @note The name of a component is unique
+             * @return
+             */
             virtual const char *name() const = 0;
 
             /**
-         * @brief Get the label of the component.
-         *
-         * @return
-         */
+             * @brief Get the label of the component.
+             *
+             * @return
+             */
             const char *label() const {
                 return m_label.c_str();
             }
 
-            unsigned int countNandGate() const {
-                if (m_sub_components.empty()) {
-                    // If a component has no subcomponent, it must be a Nand gate.
-                    return 1;
-                } else {
-                    unsigned int count = 0;
-                    for (auto &sub_component : m_sub_components) {
-                        count += sub_component->countNandGate();
-                    }
-                    return count;
-                }
-            }
+            unsigned int countNandGate() const;
 
             InOut *get(const char *name) {
                 auto found = m_in_outs_lut.find(name);
@@ -214,26 +205,30 @@ namespace jazz {
                 return found == m_in_outs_lut.end() ? nullptr : (found->second->type() == InOut::INPUT ? found->second : nullptr);
             }
 
+            InOut *in(int i) {
+                return m_ins[i];
+            }
+
+            InOut *out(int i) {
+                return m_outs[i];
+            }
+
             InOut *out(const char *name) {
                 auto found = m_in_outs_lut.find(name);
                 return found == m_in_outs_lut.end() ? nullptr : (found->second->type() == InOut::OUTPUT ? found->second : nullptr);
             }
 
             /**
-             * @brief Connect the in of this component to the output of another component.
+             * @brief Connect the input of this component to the output of another component.
+             *
+             * There are two special cases:
+             *  - The input-input case happens when a input is connected to the input of its parent.
+             *  - The output-output case happens when a output is connected to the output of a subcomponent.
              * @param in
              * @param source
              * @return
              */
-            bool connect(InOut* in, const ComponentAndPort& source){
-                JAZZ_ASSERT(in && source.component && source.port);
-                if(in && source.component && source.port){
-                    m_input_src[in] = source;
-                    source.component->m_output_dest[source.port].push_back({this, in});
-                    return true;
-                }
-                return false;
-            }
+            bool connect(InOut *in, const ComponentAndPort &source);
 
             /**
              * @brief Connect the in of this component to the output of another component.
@@ -250,75 +245,87 @@ namespace jazz {
              * @brief Connect the in of this component to the output of another component.
              * @param in_name The name of the in of this component.
              * @param c
-             * @param out
+             * @param out_name
              * @return
              */
-            bool connect(const char *in_name, Component *c, const char *out) {
-                return connect(in(in_name), c, c->get(out));
+            bool connect(const char *in_name, Component *c, const char *out_name) {
+                return connect(in(in_name), c, c->get(out_name));
             }
 
-            bool disconnect(InOut *in) {
-                if (in) {
-                    m_input_src.erase(in);
-                    return true;
-                }
-                return false;
-            }
+            /**
+             * @brief Disconnect the input of this component.
+             * @param in
+             * @return
+             */
+            bool disconnect(InOut *in);
 
-            virtual void compute() {
-                if (!m_is_computed) {
-                    for (auto &output : m_outs) {
-                        if (m_output_map.find(output) != m_output_map.end()) {
-                            auto &component_and_port = m_output_map[output];
-                            component_and_port.component->compute();
-                            output->setValue(component_and_port.port->value());
-                        } else {
-                            // It's a nand gate.
-                            for (auto &input : m_ins) {
-                                auto source = inputSource(input);
-                                // The input is connected to another component's output.
-                                // Compute the output of the connected component.
-                                if (source.component != nullptr && source.port->type() == InOut::OUTPUT) {
-                                    source.component->compute();
-                                }
+            JAZZ_DEBUG_VIRTUAL void compute();
 
-                                input->setValue(source.port->value());
+            /**
+             * @brief Set the value of a input of this component to be the given value.
+             * @param in
+             * @param value
+             */
+            void setInputValue(InOut *in, bool value);
+
+            /**
+             * @brief Set the value of a input of this component to be the given value.
+             * @param in
+             * @param value
+             */
+            void setInputValue(InOut *in, const bool *value);
+
+            /**
+             * @brief Set the value of a input of this component to be the value of another port.
+             * @param in
+             * @param value
+             */
+            void setInputValue(InOut *in, InOut *value);
+
+
+            struct Replacement {
+                Component *component{nullptr};
+                std::vector<Component *> parts;
+            };
+
+            void unpackAll(int level = 1) {
+                while (level > 0) {
+                    std::vector<Replacement> replacements;
+                    for (auto &subcomponent : m_sub_components) {
+                        replacements.emplace_back();
+                        subcomponent->replaceWithParts(replacements.back());
+                    }
+
+                    for (auto &replacement : replacements) {
+
+                        if (replacement.component == nullptr) {
+                            continue;
+                        }
+
+                        // erase this component from the parent's subcomponents
+                        for (auto it = m_sub_components.begin(); it != m_sub_components.end(); it++) {
+                            if (*it == replacement.component) {
+                                m_sub_components.erase(it);
+                                break;
                             }
+                        }
 
-                            // Compute the output of the nand gate.
-                            output->bit(0) = !(m_ins[0]->bit(0) && m_ins[1]->bit(0));
+                        // delete the subcomponent
+                        replacement.component->m_sub_components.clear();
+                        delete replacement.component;
+
+                        for (auto &component : replacement.parts) {
+                            component->m_parent = this;
+                            m_sub_components.push_back(component);
                         }
                     }
 
-                    // TODO
-                    // Different outputs is computed independently.
-                    // It's better to mark each output than the whole component.
-                    m_is_computed = true;
+                    level--;
                 }
             }
 
-            void setInputValue(InOut *in, bool value) {
-                JAZZ_ASSERT(in->width() == 1);
-                if (in->bit(0) != value) {
-                    in->bit(0) = value;
-                    makeOutOfDate();
-                }
-            }
+            bool saveAsDot(const char *filename) const;
 
-            void setInputValue(InOut *in, const bool *value) {
-                bool value_changed = false;
-                for (int i = 0; i < in->width(); i++) {
-                    if (in->bit(i) != value[i]) {
-                        value_changed = true;
-                        break;
-                    }
-                }
-
-                if (value_changed) {
-                    in->setValue(value);
-                    makeOutOfDate();
-                }
-            }
 
         protected:
             InOut *addIn(const char *name, int width) {
@@ -344,31 +351,29 @@ namespace jazz {
             }
 
             Component *addComponent(Component *c) {
+                c->m_parent = this;
                 m_sub_components.push_back(c);
                 return c;
             }
 
-            void makeOutOfDate() {
+            JAZZ_DEBUG_VIRTUAL void makeOutOfDate() {
                 m_is_computed = false;
-                for (auto &dest : m_output_dest) {
+
+                // subcomponents
+                for (auto &dest : m_input_dest) {
                     for (auto &component_and_port : dest.second) {
-                        component_and_port.component->makeOutOfDate();
+                        if (component_and_port.component != nullptr) {
+                            component_and_port.component->makeOutOfDate();
+                        }
                     }
                 }
-            }
 
-            /**
-         * @brief Set the output of this component to the output of a subcomponent.
-         * @param out
-         * @param c
-         * @param c_out
-         */
-            void setOutput(InOut *out, Component *c, InOut *c_out) {
-                if (out) {
-                    if (c_out && c_out->width() == out->width()) {
-                        m_output_map[out] = {c, c_out};
-                    } else {
-                        m_output_map.erase(out);
+                // other components connected to the output of this component
+                for (auto &dest : m_output_dest) {
+                    for (auto &component_and_port : dest.second) {
+                        if (component_and_port.component != m_parent && component_and_port.component != nullptr) {
+                            component_and_port.component->makeOutOfDate();
+                        }
                     }
                 }
             }
@@ -381,16 +386,92 @@ namespace jazz {
                 return m_outs;
             }
 
-            ComponentAndPort inputSource(InOut *in) {
-                ComponentAndPort source{this, in};
-                auto found = m_input_src.find(in);
-                bool is_connected = found != m_input_src.end();
-                while (is_connected) {
-                    source = found->second;
-                    found = source.component->m_input_src.find(source.port);
-                    is_connected = found != source.component->m_input_src.end();
+            ComponentAndPort inputSource(InOut *in, bool recursive = true);
+
+            bool replaceWithParts(Replacement &replacement) {
+                if (m_parent == nullptr || m_sub_components.empty()) {
+                    return false;
                 }
-                return source;
+
+                // reconnection.,
+                // For example: A -> B  => A -> B1, A -> B2
+                for (auto &pair : m_input_dest) {
+                    auto source = inputSource(pair.first);
+                    // make a copy because connect() may change the value of pair.second
+                    auto receivers = pair.second;
+                    for (auto &receiver : receivers) {
+                        receiver.component->connect(receiver.port, source);
+                        JAZZ_ASSERT(receiver.component->isConnected(receiver.port, source.port));
+                    }
+                }
+
+                // For example: A -> B  => A1 -> B, A2 -> B
+                for (auto &pair : m_output_dest) {
+                    auto source = m_output_map[pair.first];
+                    for (auto &receiver : pair.second) {
+                        receiver.component->connect(receiver.port, source);
+                    }
+                }
+
+                // move the subcomponents to the parent
+                replacement.parts = m_sub_components;
+                replacement.component = this;
+                return true;
+            }
+
+        private:
+            /**
+             * @brief Set the output of this component to the output of a subcomponent.
+             * @param out
+             * @param c
+             * @param c_out
+             */
+            void setOutput(InOut *out, Component *c, InOut *c_out) {
+                if (out && c && c_out) {
+                    if (c_out->width() == out->width()) {
+                        m_output_map[out] = {c, c_out};
+                        c->m_output_dest[c_out].push_back({this, out});
+                    } else {
+                        m_output_map.erase(out);
+                    }
+                }
+            }
+
+            void disconnectAll() {
+                // Disconnect all the inputs
+                for (auto &in : m_ins) {
+                    disconnect(in);
+                }
+
+                for (auto &[in, dest] : m_input_dest) {
+                    for (auto &receiver : dest) {
+                        receiver.component->disconnect(receiver.port);
+                    }
+                }
+
+                // Disconnect all the outputs
+                for (auto &out : m_outs) {
+                    disconnect(out);
+                }
+
+                for (auto &[out, dest] : m_output_dest) {
+                    for (auto &receiver : dest) {
+                        receiver.component->disconnect(receiver.port);
+                    }
+                }
+            }
+
+            void disconnectOutToIn(InOut *out, InOut *in);
+            void disconnectInToIn(InOut *in_from, InOut *in_to);
+            void disconnectOutToOut(InOut *out_from, InOut *out_to);
+
+            bool isConnected(InOut *in) {
+                return m_input_src.find(in) != m_input_src.end();
+            }
+
+            bool isConnected(InOut *in, InOut *out) {
+                auto found = m_input_src.find(in);
+                return found != m_input_src.end() && found->second.port == out;
             }
 
         protected:
@@ -409,13 +490,16 @@ namespace jazz {
             /// Describe the signal source of each input.
             /// If an input is connected to the output of another component, the input is mapped to the output of that component.
             std::unordered_map<InOut *, ComponentAndPort> m_input_src;
-            /// If this component has sub-components, a output of this component is mapped to the output of a sub-component.
+            /// If this component has subcomponents, a output of this component is mapped to the output of a subcomponent.
             std::unordered_map<InOut *, ComponentAndPort> m_output_map;
+            /// If this component has subcomponents, a input of this component is link to the input of a subcomponent.
+            std::unordered_map<InOut *, std::vector<ComponentAndPort>> m_input_dest;
             /// The destination of the output of this component.
             std::unordered_map<InOut *, std::vector<ComponentAndPort>> m_output_dest;
 
-
             bool m_is_computed = false;
+
+            Component *m_parent = nullptr;
         };
     }// namespace simulation
 }// namespace jazz
