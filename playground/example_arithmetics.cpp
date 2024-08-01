@@ -67,6 +67,31 @@ int main() {
     {
         FullAdder full_adder;
         full_adder.saveAsDot("/Users/meitu/Temp/trash/full_adder.dot");
+        full_adder.unpack(1);
+        full_adder.saveAsDot("/Users/meitu/Temp/trash/full_adder_unpack_1.dot");
+        full_adder.unpack(1);
+        full_adder.saveAsDot("/Users/meitu/Temp/trash/full_adder_unpack_2.dot");
+        full_adder.unpack(1);
+        full_adder.saveAsDot("/Users/meitu/Temp/trash/full_adder_unpack_3.dot");
+
+        auto a = full_adder.get("a");
+        auto b = full_adder.get("b");
+        auto c = full_adder.get("c");
+        auto sum = full_adder.get("sum");
+        auto carry = full_adder.get("carry");
+        printf(" a b c | carry sum\n");
+        printf("-------|-----------\n");
+        for (int i = 0; i < 8; i++) {
+            auto va = (i >> 2) & 0x01;
+            auto vb = (i >> 1) & 0x01;
+            auto vc = i & 0x01;
+            full_adder.setInputValue(a, va);
+            full_adder.setInputValue(b, vb);
+            full_adder.setInputValue(c, vc);
+            full_adder.compute();
+            printf(" %d %d %d | %5d %3d\n", va, vb, vc, carry->bit(0), sum->bit(0));
+        }
+        printf("Num of nand gates = %d\n", full_adder.countNandGate());
     }
 
     return 0;
